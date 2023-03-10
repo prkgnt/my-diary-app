@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components/native";
 import colors from "../colors";
+import DBContext from "../context";
 
 const View = styled.View`
   background-color: ${colors.bgColor};
@@ -51,15 +52,28 @@ const EmojiText = styled.Text`
 
 const emojis = ["😄", "😍", "😭", "😤", "🫠", "🥳", "🤧"];
 
-const Write = () => {
+const Write = ({ navigation: { goBack } }) => {
+  const realm = useContext(DBContext);
+
   const [selectedEmotion, setEmotion] = useState(null);
   const [feelings, setFeelings] = useState("");
   const onChangeText = (text) => setFeelings(text);
   const onEmojiPress = (face) => setEmotion(face);
-  const onSubmit = () => {
+  const onSubmit = async () => {
     if (selectedEmotion == null || feelings == "") {
       return alert("Please complete form.");
     }
+
+    //realm.write(()=>{realm.create("스키마 이름", {property})})
+    realm.write(() => {
+      const feeling = realm.create("Feeling", {
+        _id: Date.now(),
+        emotion: selectedEmotion,
+        message: feelings,
+      });
+      console.log(feeling);
+    });
+    goBack();
   };
   return (
     <View>
