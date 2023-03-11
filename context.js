@@ -1,4 +1,7 @@
 import React, { useContext } from "react";
 
-const DBContext = React.createContext();
-export default DBContext;
+export default DBContext = React.createContext();
+
+export const useDB = () => {
+  return useContext(DBContext);
+};

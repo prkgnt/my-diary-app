@@ -66,12 +66,11 @@ const Write = ({ navigation: { goBack } }) => {
 
     //realm.write(()=>{realm.create("스키마 이름", {property})})
     realm.write(() => {
-      const feeling = realm.create("Feeling", {
+      realm.create("Feeling", {
         _id: Date.now(),
         emotion: selectedEmotion,
         message: feelings,
       });
-      console.log(feeling);
     });
     goBack();
   };

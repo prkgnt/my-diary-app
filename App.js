@@ -1,5 +1,5 @@
 import { NavigationContainer } from "@react-navigation/native";
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Navigator from "./navigator";
 import Realm from "realm";
 import * as SplashScreen from "expo-splash-screen";
@@ -22,25 +22,30 @@ export default function App() {
   const [ready, setReady] = useState(false);
   const [realm, setRealm] = useState(null);
 
-  const startLoading = async () => {
-    const connection = await Realm.open({
-      path: "diaryDB",
-      schema: [FeelingSchema],
-    });
-    setRealm(connection);
-  };
-
   useEffect(() => {
+    const startLoading = async () => {
+      const connection = await Realm.open({
+        path: "diaryDB",
+        schema: [FeelingSchema],
+      });
+      setRealm(connection);
+      setReady(true);
+    };
     startLoading();
-    setReady(true);
   }, []);
 
-  if (ready) {
-    SplashScreen.hideAsync();
+  const onLayoutRootView = useCallback(async () => {
+    if (ready) {
+      await SplashScreen.hideAsync();
+    }
+  }, [ready]);
+
+  if (!ready) {
+    return null;
   }
 
   return (
-    <DBContext.Provider value={realm}>
+    <DBContext.Provider value={realm} onLayout={onLayoutRootView}>
       <NavigationContainer>
         <Navigator />
       </NavigationContainer>
