@@ -3,7 +3,7 @@ import styled from "styled-components/native";
 import colors from "../colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useDB } from "../context";
-import { FlatList } from "react-native";
+import { FlatList, TouchableOpacity } from "react-native";
 
 const View = styled.View`
   flex: 1;
@@ -55,14 +55,21 @@ const Home = ({ navigation: { navigate } }) => {
   const realm = useDB();
   const [feelings, setFeelings] = useState([]);
 
+  const onPress = (id) => {
+    realm.write(() => {
+      const feeling = realm.objectForPrimaryKey("Feeling", id);
+      realm.delete(feeling);
+    });
+  };
+
   useEffect(() => {
     const feeling = realm.objects("Feeling");
-    setFeelings(feeling);
 
     //addListener 하면 해당 변수에 새로운 이벤트가 발생하면 호출됨
-    feeling.addListener(() => {
-      const feeling = realm.objects("Feeling");
-      setFeelings(feeling);
+    feeling.addListener((feelingValue, changes) => {
+      //true면 내림차순
+      //id는 date라서 최근일수록 큰 수임
+      setFeelings(feelingValue.sorted("_id", true));
     });
 
     //useEffect는 함수를 리턴할 수 있음
@@ -78,10 +85,12 @@ const Home = ({ navigation: { navigate } }) => {
         ItemSeparatorComponent={Separator}
         keyExtractor={(feelings) => feelings._id + ""}
         renderItem={({ item }) => (
-          <Record>
-            <Emotion>{item.emotion}</Emotion>
-            <Message>{item.message}</Message>
-          </Record>
+          <TouchableOpacity onPress={() => onPress(item._id)}>
+            <Record>
+              <Emotion>{item.emotion}</Emotion>
+              <Message>{item.message}</Message>
+            </Record>
+          </TouchableOpacity>
         )}
       />
       <Btn onPress={() => navigate("Write")}>
