@@ -3,7 +3,7 @@ import styled from "styled-components/native";
 import colors from "../colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useDB } from "../context";
-import { FlatList, TouchableOpacity } from "react-native";
+import { FlatList, LayoutAnimation, TouchableOpacity } from "react-native";
 
 const View = styled.View`
   flex: 1;
@@ -67,6 +67,8 @@ const Home = ({ navigation: { navigate } }) => {
 
     //addListener 하면 해당 변수에 새로운 이벤트가 발생하면 호출됨
     feeling.addListener((feelingValue, changes) => {
+      //스테이트 변화가 있으면 애니메이션을 줌
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
       //true면 내림차순
       //id는 date라서 최근일수록 큰 수임
       setFeelings(feelingValue.sorted("_id", true));
@@ -81,7 +83,7 @@ const Home = ({ navigation: { navigate } }) => {
       <Title>My Journal</Title>
       <FlatList
         data={feelings.map((feeling) => feeling).flat()}
-        contentContainerStyle={{ paddingBottom: 30 }}
+        contentContainerStyle={{ paddingBottom: 30, paddingTop: 30 }}
         ItemSeparatorComponent={Separator}
         keyExtractor={(feelings) => feelings._id + ""}
         renderItem={({ item }) => (
